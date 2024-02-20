@@ -20,5 +20,10 @@ yarn install
 docker-compose up -d
 ```
 
-6. Levantar modo desarrollo
+6. Ejecutar el SEED
+```
+http://localhost:300/api/seed
+```
+
+7. Levantar modo desarrollo
 ```yarn start:dev```
