@@ -14,7 +14,7 @@ import * as bcrypt from 'bcrypt';
 
 import { LoginUserDto, CreateUserDto } from './dto';
 import { User } from './entities/user.entity';
-import { JwtPayload } from './interfaces/jwt-payload.interface';
+import { JwtPayload } from './interfaces';
 
 @Injectable()
 export class AuthService {
@@ -41,7 +41,10 @@ export class AuthService {
       delete user.password;
       delete user.isActive;
 
-      return { ...user, token: this.getJwtToken({ email: user.email }) };
+      return {
+        ...user,
+        token: this.getJwtToken({ email: user.email, id: user.id }),
+      };
     } catch (error) {
       this.handleExceptions(error);
     }
@@ -51,7 +54,7 @@ export class AuthService {
     const { password, email } = loginUserDto;
     const user = await this.userRepository.findOne({
       where: { email },
-      select: { email: true, password: true },
+      select: { email: true, password: true, id: true },
     });
 
     if (!user) throw new UnauthorizedException(`Not valid credentials.`);
@@ -59,7 +62,17 @@ export class AuthService {
     if (!bcrypt.compareSync(password, user.password))
       throw new UnauthorizedException(`Incorrect Password.`);
 
-    return { ...user, token: this.getJwtToken({ email: user.email }) };
+    return {
+      ...user,
+      token: this.getJwtToken({ email: user.email, id: user.id }),
+    };
+  }
+
+  async checkOutStatus(user: User) {
+    return {
+      ...user,
+      token: this.getJwtToken({ email: user.email, id: user.id }),
+    };
   }
 
   private handleExceptions(error: any): never {
